@@ -22,7 +22,13 @@ Create a git worktree with synced configs and background dependency installation
 3. **Worktree Creation** - Creates worktree as sibling directory
 4. **Config Sync** - Copies `.claude/`, `.env`, `.vscode/`, etc.
 5. **Dependency Install** - Runs package manager in background
-6. **Summary Output** - Shows path and next steps
+6. **Clipboard Copy** - Copies launch command to clipboard (macOS/Linux)
+7. **Summary Output** - Shows path and quick start instructions
+
+**Quick switch to new worktree:**
+
+After `/worktree` completes, the command `cd <path> && claude` is copied to your clipboard.
+Just press `Ctrl+C` to exit, then paste and run to start Claude Code in the new worktree.
 
 **Synced files:**
 

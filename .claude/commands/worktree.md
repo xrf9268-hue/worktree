@@ -1,7 +1,7 @@
 ---
 description: Create a git worktree with synced configs and background dependency installation
 argument-hint: [branch-name]
-allowed-tools: Bash(git:*), Bash(cp:*), Bash(mkdir:*), Bash(ls:*), Bash(cat:*), Bash(cd:*), Bash(pnpm:*), Bash(npm:*), Bash(yarn:*), Bash(bun:*)
+allowed-tools: Bash(git:*), Bash(cp:*), Bash(mkdir:*), Bash(ls:*), Bash(cat:*), Bash(cd:*), Bash(pnpm:*), Bash(npm:*), Bash(yarn:*), Bash(bun:*), Bash(echo:*), Bash(command:*), Bash(pbcopy:*), Bash(xclip:*), Bash(xsel:*), Bash(wl-copy:*)
 ---
 
 # Git Worktree Workflow
@@ -75,7 +75,37 @@ Detect the package manager and install dependencies in the background:
 
 3. Notify the user that installation is running in the background.
 
-## Step 6: Summary Output
+## Step 6: Copy Launch Command to Clipboard
+
+Copy the command to launch Claude Code in the new worktree to the system clipboard.
+
+**Cross-platform clipboard detection** (try in order):
+```bash
+# Detect available clipboard tool
+if command -v pbcopy &> /dev/null; then
+  CLIP_CMD="pbcopy"
+elif command -v xclip &> /dev/null; then
+  CLIP_CMD="xclip -selection clipboard"
+elif command -v xsel &> /dev/null; then
+  CLIP_CMD="xsel --clipboard --input"
+elif command -v wl-copy &> /dev/null; then
+  CLIP_CMD="wl-copy"
+else
+  CLIP_CMD=""
+fi
+```
+
+**Copy the launch command**:
+```bash
+if [ -n "$CLIP_CMD" ]; then
+  echo "cd <new-path> && claude" | $CLIP_CMD
+  CLIPBOARD_SUCCESS=true
+else
+  CLIPBOARD_SUCCESS=false
+fi
+```
+
+## Step 7: Summary Output
 
 **Do NOT automatically open an editor.** Instead, provide a clear summary:
 
@@ -86,11 +116,22 @@ Worktree created successfully!
   Branch: <branch-name>
   Configs synced: .claude/, .env, .vscode/, ...
   Dependencies: Installing in background (pnpm/npm/yarn/bun)
-
-Next steps:
-  - Continue working here in Claude Code
-  - Or open in your editor: cursor <new-path>
-  - Or navigate: cd <new-path>
 ```
 
-This allows the user to decide their next action.
+**If clipboard copy succeeded**, show:
+```
+Quick start (command copied to clipboard):
+  1. Press Ctrl+C to exit current session
+  2. Press Cmd+V (macOS) or Ctrl+Shift+V (Linux) to paste and run
+
+Or manually:
+  cd <new-path> && claude
+```
+
+**If clipboard copy failed**, show:
+```
+To start Claude Code in the new worktree:
+  cd <new-path> && claude
+```
+
+This allows the user to quickly switch to the new worktree.
