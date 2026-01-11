@@ -1,46 +1,125 @@
-# Claude Code Commands
+# Worktree Command
 
-Custom slash commands for Claude Code.
+Git worktree automation for Claude Code and Codex CLI with config sync, content migration, and background dependency installation.
 
-## Commands
+## Features
 
-### `/worktree [branch-name]`
+- **Unified Directory Structure** - Organizes worktrees in `../.worktrees/<project>/`
+- **Content Migration** - Transfer uncommitted changes between worktrees via `--stash` or `--from`
+- **Config Sync** - Automatically copies `.env`, `.vscode/`, platform configs, etc.
+- **Background Dependencies** - Detects package manager and installs in background
+- **Clipboard Integration** - Copies launch command for quick worktree switching
 
-Create a git worktree with synced configs and background dependency installation.
-
-**Usage:**
+## Quick Start
 
 ```bash
-/worktree                    # Interactive branch selection
-/worktree feature/new-api    # Specify branch name
+# Claude Code
+/worktree feature-auth
+
+# Codex CLI
+$worktree feature-auth
 ```
 
-**What it does:**
+Output:
+```
+Worktree created successfully!
 
-1. **Context Analysis** - Detects main repo vs existing worktree
-2. **Branch Resolution** - Uses provided branch or shows recent branches for selection
-3. **Worktree Creation** - Creates worktree as sibling directory
-4. **Config Sync** - Copies `.claude/`, `.env`, `.vscode/`, etc.
-5. **Dependency Install** - Runs package manager in background
-6. **Clipboard Copy** - Copies launch command to clipboard (macOS/Linux)
-7. **Summary Output** - Shows path and quick start instructions
+  Path:     ../.worktrees/project/feature-auth/
+  Branch:   feature-auth
+  Configs:  .claude/, .env, .vscode/, ...
 
-**Quick switch to new worktree:**
+Quick start (copied to clipboard):
+  cd ../.worktrees/project/feature-auth && claude
+```
 
-After `/worktree` completes, the command `cd <path> && claude` is copied to your clipboard.
-Just press `Ctrl+C` to exit, then paste and run to start Claude Code in the new worktree.
+## Usage
 
-**Synced files:**
+### Basic
 
-- `.claude/` - Claude Code settings
-- `.env` / `.env.local` - Environment variables
-- `.vscode/` - VS Code settings
-- `.cursorrules` / `.windsurfrules` - Editor rules
-- `docs/.local/` - Local documentation
+```bash
+/worktree [branch-name]              # Create worktree for branch
+/worktree                            # Interactive branch selection
+```
+
+### With Content Migration
+
+```bash
+/worktree feature --stash            # Migrate current uncommitted changes
+/worktree feature --from hotfix      # Migrate changes from another worktree
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `--stash` | Stash current changes and apply to new worktree |
+| `--from <name>` | Stash changes from specified worktree and apply |
+
+### Branch Name Handling
+
+Branch names with `/` are converted to `-` for flat directory structure:
+
+| Input | Output Directory |
+|-------|------------------|
+| `feature/auth` | `.worktrees/project/feature-auth/` |
+| `bugfix/issue-123` | `.worktrees/project/bugfix-issue-123/` |
+
+### Directory Structure
+
+```
+parent/
+├── project/                    # Main repo
+└── .worktrees/
+    └── project/                # Grouped by project
+        ├── feature-auth/
+        ├── hotfix-123/
+        └── ...
+```
+
+### Synced Files
+
+| File/Directory | Claude Code | Codex CLI |
+|----------------|:-----------:|:---------:|
+| `.claude/` | ✓ | - |
+| `.codex/` | - | ✓ |
+| `AGENTS.md` | - | ✓ |
+| `.env` / `.env.local` | ✓ | ✓ |
+| `.vscode/` | ✓ | ✓ |
+| `.cursorrules` / `.windsurfrules` | ✓ | ✓ |
+| `docs/.local/` | ✓ | ✓ |
 
 ## Installation
 
-Copy `.claude/commands/` to your project root.
+### Claude Code
+
+```bash
+cp -r .claude/commands/ <your-project>/.claude/commands/
+```
+
+### Codex CLI
+
+```bash
+# Project scope
+cp -r .codex/skills/worktree <your-project>/.codex/skills/
+
+# Or user scope (available across all projects)
+cp -r .codex/skills/worktree ~/.codex/skills/
+```
+
+Restart Codex to activate.
+
+## Supported Platforms
+
+| Platform | Location | Invocation |
+|----------|----------|------------|
+| Claude Code | `.claude/commands/worktree.md` | `/worktree` |
+| Codex CLI | `.codex/skills/worktree/SKILL.md` | `$worktree` |
+
+## References
+
+- [Git Worktree Documentation](https://github.com/git/git/blob/master/Documentation/git-worktree.txt)
+- [Claude Code Slash Commands](https://docs.anthropic.com/en/docs/claude-code)
+- [Codex Skills Documentation](https://developers.openai.com/codex/skills)
 
 ## License
 
