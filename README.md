@@ -1,93 +1,85 @@
-# AI Code Assistant Commands
+# Worktree Command
 
-Custom commands for Claude Code and OpenAI Codex CLI.
+Git worktree automation for Claude Code and Codex CLI with config sync, content migration, and background dependency installation.
 
-## Supported Platforms
+## Features
 
-| Platform | Location | Invocation |
-|----------|----------|------------|
-| **Claude Code** | `.claude/commands/worktree.md` | `/worktree` |
-| **Codex CLI** | `.codex/skills/worktree/SKILL.md` | `$worktree` |
+- **Unified Directory Structure** - Organizes worktrees in `../.worktrees/<project>/`
+- **Content Migration** - Transfer uncommitted changes between worktrees via `--stash` or `--from`
+- **Config Sync** - Automatically copies `.env`, `.vscode/`, platform configs, etc.
+- **Background Dependencies** - Detects package manager and installs in background
+- **Clipboard Integration** - Copies launch command for quick worktree switching
 
-## Commands
+## Quick Start
 
-### Worktree Command
-
-Create a git worktree with synced configs, content migration, and background dependency installation.
-
-**Claude Code:**
 ```bash
-/worktree [branch-name] [--stash] [--from <worktree>]
+# Claude Code
+/worktree feature-auth
+
+# Codex CLI
+$worktree feature-auth
 ```
 
-**Codex CLI:**
-```bash
-$worktree [branch-name] [--stash] [--from <worktree>]
+Output:
+```
+Worktree created successfully!
+
+  Path:     ../.worktrees/project/feature-auth/
+  Branch:   feature-auth
+  Configs:  .claude/, .env, .vscode/, ...
+
+Quick start (copied to clipboard):
+  cd ../.worktrees/project/feature-auth && claude
 ```
 
-**Options:**
+## Usage
+
+### Basic
+
+```bash
+/worktree [branch-name]              # Create worktree for branch
+/worktree                            # Interactive branch selection
+```
+
+### With Content Migration
+
+```bash
+/worktree feature --stash            # Migrate current uncommitted changes
+/worktree feature --from hotfix      # Migrate changes from another worktree
+```
+
+### Options
 
 | Option | Description |
 |--------|-------------|
-| `--stash` | Save current uncommitted changes and apply them to the new worktree |
-| `--from <name>` | Migrate uncommitted changes from the specified worktree |
+| `--stash` | Stash current changes and apply to new worktree |
+| `--from <name>` | Stash changes from specified worktree and apply |
 
-**What it does:**
+### Branch Name Handling
 
-1. **Argument Parsing** - Extracts branch name and migration options
-2. **Context Analysis** - Detects main repo vs existing worktree
-3. **Branch Resolution** - Uses provided branch or shows recent branches
-4. **Path Determination** - Uses unified `.worktrees/<project>/` structure
-5. **Content Migration** - Stashes and applies changes if requested
-6. **Worktree Creation** - Creates worktree in organized directory
-7. **Config Sync** - Copies platform-specific configs
-8. **Dependency Install** - Runs package manager in background
-9. **Clipboard Copy** - Copies launch command to clipboard
-10. **Summary Output** - Shows path and quick start instructions
-
-**Directory Structure:**
-
-```
-parent/
-├── project/                    # Main repo
-└── .worktrees/
-    └── project/                # Grouped by project name
-        ├── feature-auth/       # Worktree 1
-        ├── hotfix-123/         # Worktree 2
-        └── ...
-```
-
-**Branch Name Handling:**
-
-Branch names containing `/` are automatically converted to `-` for flat directory structure:
+Branch names with `/` are converted to `-` for flat directory structure:
 
 | Input | Output Directory |
 |-------|------------------|
 | `feature/auth` | `.worktrees/project/feature-auth/` |
 | `bugfix/issue-123` | `.worktrees/project/bugfix-issue-123/` |
-| `main` | `.worktrees/project/main/` |
 
-**Content Migration Examples:**
+### Directory Structure
 
-```bash
-# Scenario: You have uncommitted changes and need to switch context
-/worktree hotfix-urgent --stash   # Claude Code
-$worktree hotfix-urgent --stash   # Codex CLI
-
-# Scenario: Pull changes from another worktree
-/worktree feature-b --from feature-a   # Claude Code
-$worktree feature-b --from feature-a   # Codex CLI
+```
+parent/
+├── project/                    # Main repo
+└── .worktrees/
+    └── project/                # Grouped by project
+        ├── feature-auth/
+        ├── hotfix-123/
+        └── ...
 ```
 
-**Quick switch to new worktree:**
-
-After the command completes, the launch command is copied to your clipboard.
-Just press `Ctrl+C` to exit, then paste and run to start in the new worktree.
-
-**Synced files:**
+### Synced Files
 
 | File/Directory | Claude Code | Codex CLI |
-|----------------|-------------|-----------|
+|----------------|:-----------:|:---------:|
 | `.claude/` | ✓ | - |
 | `.codex/` | - | ✓ |
 | `AGENTS.md` | - | ✓ |
@@ -100,24 +92,34 @@ Just press `Ctrl+C` to exit, then paste and run to start in the new worktree.
 
 ### Claude Code
 
-Copy `.claude/commands/` to your project root.
+```bash
+cp -r .claude/commands/ <your-project>/.claude/commands/
+```
 
 ### Codex CLI
 
-Copy `.codex/skills/` to your project root, or install to user scope:
-
 ```bash
+# Project scope
+cp -r .codex/skills/worktree <your-project>/.codex/skills/
+
+# Or user scope (available across all projects)
 cp -r .codex/skills/worktree ~/.codex/skills/
 ```
 
-Restart Codex to activate the skill.
+Restart Codex to activate.
+
+## Supported Platforms
+
+| Platform | Location | Invocation |
+|----------|----------|------------|
+| Claude Code | `.claude/commands/worktree.md` | `/worktree` |
+| Codex CLI | `.codex/skills/worktree/SKILL.md` | `$worktree` |
 
 ## References
 
 - [Git Worktree Documentation](https://github.com/git/git/blob/master/Documentation/git-worktree.txt)
 - [Claude Code Slash Commands](https://docs.anthropic.com/en/docs/claude-code)
 - [Codex Skills Documentation](https://developers.openai.com/codex/skills)
-- [Codex Create Skill Guide](https://developers.openai.com/codex/skills/create-skill/)
 
 ## License
 
