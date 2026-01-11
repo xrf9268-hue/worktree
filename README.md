@@ -57,6 +57,16 @@ parent/
         └── ...
 ```
 
+**Branch Name Handling:**
+
+Branch names containing `/` are automatically converted to `-` for flat directory structure:
+
+| Input | Output Directory |
+|-------|------------------|
+| `feature/auth` | `.worktrees/project/feature-auth/` |
+| `bugfix/issue-123` | `.worktrees/project/bugfix-issue-123/` |
+| `main` | `.worktrees/project/main/` |
+
 **Content Migration Examples:**
 
 ```bash
