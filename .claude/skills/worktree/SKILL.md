@@ -1,7 +1,6 @@
 ---
 name: worktree
-description: Create a git worktree with synced configs, content migration, and background dependency installation. Use when creating parallel development environments, switching branches with uncommitted changes, or when user mentions "worktree", "parallel branch", "new environment", or "switch branch with changes".
-argument-hint: [branch-name] [--stash] [--from <worktree>]
+description: Create a git worktree with synced configs and background dependency installation. Supports arguments [branch-name] [--stash] [--from <worktree>]. Use when creating parallel development environments, switching branches with uncommitted changes, or when user mentions "worktree", "parallel branch", or "new environment".
 allowed-tools:
   - Bash(git:*)
   - Bash(cp:*)
