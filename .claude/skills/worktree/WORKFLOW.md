@@ -1,12 +1,4 @@
----
-description: Create a git worktree with synced configs, content migration, and background dependency installation
-argument-hint: [branch-name] [--stash] [--from <worktree>]
-allowed-tools: Bash(git:*), Bash(cp:*), Bash(mkdir:*), Bash(ls:*), Bash(cat:*), Bash(cd:*), Bash(pnpm:*), Bash(npm:*), Bash(yarn:*), Bash(bun:*), Bash(echo:*), Bash(command:*), Bash(pbcopy:*), Bash(xclip:*), Bash(xsel:*), Bash(wl-copy:*), Bash(date:*), Bash(grep:*), Bash(awk:*), Bash(pwd:*), Bash(tr:*)
----
-
-# Git Worktree Workflow
-
-You are an expert DevOps assistant. Create a parallel development environment with optional content migration.
+# Detailed Workflow Steps
 
 ## Step 1: Argument Parsing
 
@@ -15,7 +7,6 @@ Parse `$ARGUMENTS` to extract:
 - `--stash`: Flag to migrate current uncommitted changes to the new worktree
 - `--from <name>`: Migrate uncommitted changes from the specified worktree
 
-Example parsing:
 ```bash
 BRANCH_NAME=""
 USE_STASH=false
@@ -37,6 +28,7 @@ done
 ## Step 2: Context & Path Analysis
 
 Execute these commands to understand the current environment:
+
 ```bash
 git rev-parse --show-toplevel
 git rev-parse --git-common-dir
@@ -78,68 +70,9 @@ SAFE_BRANCH_NAME=$(echo "$BRANCH_NAME" | tr '/' '-')
 NEW_PATH="${WORKTREES_BASE}/${SAFE_BRANCH_NAME}"
 ```
 
-**Directory Structure:**
-```
-parent/
-├── project/                    # Main repo
-└── .worktrees/
-    └── project/                # Grouped by project
-        ├── feature-auth/       # Worktree 1
-        ├── hotfix-123/         # Worktree 2
-        └── ...
-```
+## Step 5: Content Migration
 
-## Step 5: Content Migration (if requested)
-
-### Option A: `--stash` flag
-
-Migrate current uncommitted changes to the new worktree:
-
-```bash
-if [ "$USE_STASH" = true ]; then
-  # Check for uncommitted changes
-  if [ -n "$(git status --porcelain)" ]; then
-    STASH_MSG="worktree-migrate-$(date +%Y%m%d-%H%M%S)"
-
-    # Stash including untracked files
-    git stash push -u -m "$STASH_MSG"
-    STASH_CREATED=true
-
-    echo "Changes stashed: $STASH_MSG"
-  else
-    echo "No changes to migrate"
-    STASH_CREATED=false
-  fi
-fi
-```
-
-### Option B: `--from <worktree>` flag
-
-Migrate changes from another worktree:
-
-```bash
-if [ -n "$FROM_WORKTREE" ]; then
-  # Find source worktree path
-  SOURCE_PATH=$(git worktree list | grep "$FROM_WORKTREE" | awk '{print $1}')
-
-  if [ -z "$SOURCE_PATH" ]; then
-    echo "Error: Worktree '$FROM_WORKTREE' not found"
-    git worktree list
-    exit 1
-  fi
-
-  # Check for changes in source
-  if [ -n "$(git -C "$SOURCE_PATH" status --porcelain)" ]; then
-    STASH_MSG="migrate-from-${FROM_WORKTREE}-$(date +%s)"
-    git -C "$SOURCE_PATH" stash push -u -m "$STASH_MSG"
-    FROM_STASH_CREATED=true
-    echo "Changes stashed from $FROM_WORKTREE: $STASH_MSG"
-  else
-    echo "No changes in source worktree"
-    FROM_STASH_CREATED=false
-  fi
-fi
-```
+See [MIGRATION.md](MIGRATION.md) for detailed migration options.
 
 ## Step 6: Worktree Creation
 
@@ -244,38 +177,4 @@ fi
 
 ## Step 11: Summary Output
 
-**Do NOT automatically open an editor.** Provide a clear summary:
-
-```
-Worktree created successfully!
-
-  Path:     ../.worktrees/<project>/<branch>/
-  Branch:   <branch-name>
-  Configs:  .claude/, .env, .vscode/, ...
-```
-
-**If content was migrated**, add:
-```
-  Migrated: ✓ Changes applied from [current|<source-worktree>]
-            Original stash preserved for safety
-```
-
-**If dependencies detected**, add:
-```
-  Dependencies: Installing in background (<pkg-mgr>)
-```
-
-**Quick start section:**
-
-If clipboard succeeded:
-```
-Quick start (copied to clipboard):
-  1. Press Ctrl+C to exit current session
-  2. Paste and run: cd <path> && claude
-```
-
-If clipboard failed:
-```
-To start Claude Code in the new worktree:
-  cd <path> && claude
-```
+**Do NOT automatically open an editor.** Provide a clear summary with all relevant information.

@@ -93,7 +93,7 @@ parent/
 ### Claude Code
 
 ```bash
-cp -r .claude/commands/ <your-project>/.claude/commands/
+cp -r .claude/skills/worktree <your-project>/.claude/skills/
 ```
 
 ### Codex CLI
@@ -112,8 +112,8 @@ Restart Codex to activate.
 
 | Platform | Location | Invocation |
 |----------|----------|------------|
-| Claude Code | `.claude/commands/worktree.md` | `/worktree` |
-| Codex CLI | `.codex/skills/worktree/SKILL.md` | `$worktree` |
+| Claude Code | `.claude/skills/worktree/` | `/worktree` or natural language |
+| Codex CLI | `.codex/skills/worktree/` | `$worktree` |
 
 ## References
 
