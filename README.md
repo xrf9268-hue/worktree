@@ -1,20 +1,28 @@
-# Claude Code Commands
+# AI Code Assistant Commands
 
-Custom slash commands for Claude Code.
+Custom commands for Claude Code and OpenAI Codex CLI.
+
+## Supported Platforms
+
+| Platform | Location | Invocation |
+|----------|----------|------------|
+| **Claude Code** | `.claude/commands/worktree.md` | `/worktree` |
+| **Codex CLI** | `.codex/skills/worktree/SKILL.md` | `$worktree` |
 
 ## Commands
 
-### `/worktree [branch-name] [--stash] [--from <worktree>]`
+### Worktree Command
 
 Create a git worktree with synced configs, content migration, and background dependency installation.
 
-**Usage:**
-
+**Claude Code:**
 ```bash
-/worktree                           # Interactive branch selection
-/worktree feature/new-api           # Specify branch name
-/worktree feature/new-api --stash   # Migrate current changes to new worktree
-/worktree feature/new-api --from main  # Migrate changes from another worktree
+/worktree [branch-name] [--stash] [--from <worktree>]
+```
+
+**Codex CLI:**
+```bash
+$worktree [branch-name] [--stash] [--from <worktree>]
 ```
 
 **Options:**
@@ -32,7 +40,7 @@ Create a git worktree with synced configs, content migration, and background dep
 4. **Path Determination** - Uses unified `.worktrees/<project>/` structure
 5. **Content Migration** - Stashes and applies changes if requested
 6. **Worktree Creation** - Creates worktree in organized directory
-7. **Config Sync** - Copies `.claude/`, `.env`, `.vscode/`, etc.
+7. **Config Sync** - Copies platform-specific configs
 8. **Dependency Install** - Runs package manager in background
 9. **Clipboard Copy** - Copies launch command to clipboard
 10. **Summary Output** - Shows path and quick start instructions
@@ -53,40 +61,53 @@ parent/
 
 ```bash
 # Scenario: You have uncommitted changes and need to switch context
-/worktree hotfix-urgent --stash
-# → Stashes your current changes
-# → Creates new worktree
-# → Applies changes to new worktree
-# → Original stash preserved for safety
+/worktree hotfix-urgent --stash   # Claude Code
+$worktree hotfix-urgent --stash   # Codex CLI
 
 # Scenario: Pull changes from another worktree
-/worktree feature-b --from feature-a
-# → Stashes changes from feature-a worktree
-# → Creates new worktree feature-b
-# → Applies those changes to feature-b
+/worktree feature-b --from feature-a   # Claude Code
+$worktree feature-b --from feature-a   # Codex CLI
 ```
 
 **Quick switch to new worktree:**
 
-After `/worktree` completes, the command `cd <path> && claude` is copied to your clipboard.
-Just press `Ctrl+C` to exit, then paste and run to start Claude Code in the new worktree.
+After the command completes, the launch command is copied to your clipboard.
+Just press `Ctrl+C` to exit, then paste and run to start in the new worktree.
 
 **Synced files:**
 
-- `.claude/` - Claude Code settings and commands
-- `.env` / `.env.local` - Environment variables
-- `.vscode/` - VS Code settings
-- `.cursorrules` / `.windsurfrules` - Editor rules
-- `docs/.local/` - Local documentation
+| File/Directory | Claude Code | Codex CLI |
+|----------------|-------------|-----------|
+| `.claude/` | ✓ | - |
+| `.codex/` | - | ✓ |
+| `AGENTS.md` | - | ✓ |
+| `.env` / `.env.local` | ✓ | ✓ |
+| `.vscode/` | ✓ | ✓ |
+| `.cursorrules` / `.windsurfrules` | ✓ | ✓ |
+| `docs/.local/` | ✓ | ✓ |
 
 ## Installation
 
+### Claude Code
+
 Copy `.claude/commands/` to your project root.
+
+### Codex CLI
+
+Copy `.codex/skills/` to your project root, or install to user scope:
+
+```bash
+cp -r .codex/skills/worktree ~/.codex/skills/
+```
+
+Restart Codex to activate the skill.
 
 ## References
 
 - [Git Worktree Documentation](https://github.com/git/git/blob/master/Documentation/git-worktree.txt)
 - [Claude Code Slash Commands](https://docs.anthropic.com/en/docs/claude-code)
+- [Codex Skills Documentation](https://developers.openai.com/codex/skills)
+- [Codex Create Skill Guide](https://developers.openai.com/codex/skills/create-skill/)
 
 ## License
 
