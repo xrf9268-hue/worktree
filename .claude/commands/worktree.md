@@ -1,7 +1,7 @@
 ---
 description: Create a git worktree with synced configs, content migration, and background dependency installation
 argument-hint: [branch-name] [--stash] [--from <worktree>]
-allowed-tools: Bash(git:*), Bash(cp:*), Bash(mkdir:*), Bash(ls:*), Bash(cat:*), Bash(cd:*), Bash(pnpm:*), Bash(npm:*), Bash(yarn:*), Bash(bun:*), Bash(echo:*), Bash(command:*), Bash(pbcopy:*), Bash(xclip:*), Bash(xsel:*), Bash(wl-copy:*), Bash(date:*), Bash(grep:*)
+allowed-tools: Bash(git:*), Bash(cp:*), Bash(mkdir:*), Bash(ls:*), Bash(cat:*), Bash(cd:*), Bash(pnpm:*), Bash(npm:*), Bash(yarn:*), Bash(bun:*), Bash(echo:*), Bash(command:*), Bash(pbcopy:*), Bash(xclip:*), Bash(xsel:*), Bash(wl-copy:*), Bash(date:*), Bash(grep:*), Bash(awk:*), Bash(pwd:*), Bash(tr:*)
 ---
 
 # Git Worktree Workflow
@@ -20,6 +20,7 @@ Example parsing:
 BRANCH_NAME=""
 USE_STASH=false
 FROM_WORKTREE=""
+prev_arg=""
 
 for arg in $ARGUMENTS; do
   if [ "$arg" = "--stash" ]; then
@@ -70,8 +71,11 @@ WORKTREES_BASE="${PARENT_DIR}/.worktrees/${PROJECT_NAME}"
 # Create base directory if needed
 mkdir -p "$WORKTREES_BASE"
 
+# Sanitize branch name: replace / with - for flat directory structure
+SAFE_BRANCH_NAME=$(echo "$BRANCH_NAME" | tr '/' '-')
+
 # New worktree path
-NEW_PATH="${WORKTREES_BASE}/${BRANCH_NAME}"
+NEW_PATH="${WORKTREES_BASE}/${SAFE_BRANCH_NAME}"
 ```
 
 **Directory Structure:**
@@ -175,7 +179,9 @@ fi
 Copy configuration files from the **Main Repo** to the **New Worktree**:
 
 ```bash
-MAIN_REPO=$(git rev-parse --git-common-dir | sed 's|/\.git.*||')
+# Get main repo root (works from any worktree)
+GIT_COMMON_DIR=$(git rev-parse --git-common-dir)
+MAIN_REPO=$(cd "$GIT_COMMON_DIR/.." && pwd)
 
 # Copy configs (only if they exist)
 [ -e "$MAIN_REPO/.claude" ] && cp -r "$MAIN_REPO/.claude" "$NEW_PATH/"

@@ -26,6 +26,26 @@ Parse user input to extract:
 - `--stash`: Flag to migrate current uncommitted changes
 - `--from <name>`: Migrate uncommitted changes from specified worktree
 
+Example parsing:
+```bash
+BRANCH_NAME=""
+USE_STASH=false
+FROM_WORKTREE=""
+prev_arg=""
+
+# Parse arguments from user input
+for arg in $USER_INPUT; do
+  if [ "$arg" = "--stash" ]; then
+    USE_STASH=true
+  elif [ "$prev_arg" = "--from" ]; then
+    FROM_WORKTREE="$arg"
+  elif [ "$arg" != "--from" ]; then
+    [ -z "$BRANCH_NAME" ] && BRANCH_NAME="$arg"
+  fi
+  prev_arg="$arg"
+done
+```
+
 ## Step 2: Context & Path Analysis
 
 Execute these commands to understand the current environment:
@@ -63,8 +83,11 @@ WORKTREES_BASE="${PARENT_DIR}/.worktrees/${PROJECT_NAME}"
 # Create base directory if needed
 mkdir -p "$WORKTREES_BASE"
 
+# Sanitize branch name: replace / with - for flat directory structure
+SAFE_BRANCH_NAME=$(echo "$BRANCH_NAME" | tr '/' '-')
+
 # New worktree path
-NEW_PATH="${WORKTREES_BASE}/${BRANCH_NAME}"
+NEW_PATH="${WORKTREES_BASE}/${SAFE_BRANCH_NAME}"
 ```
 
 **Directory Structure:**
@@ -164,7 +187,9 @@ fi
 Copy configuration files from the **Main Repo** to the **New Worktree**:
 
 ```bash
-MAIN_REPO=$(git rev-parse --git-common-dir | sed 's|/\.git.*||')
+# Get main repo root (works from any worktree)
+GIT_COMMON_DIR=$(git rev-parse --git-common-dir)
+MAIN_REPO=$(cd "$GIT_COMMON_DIR/.." && pwd)
 
 # Copy configs (only if they exist)
 [ -e "$MAIN_REPO/.codex" ] && cp -r "$MAIN_REPO/.codex" "$NEW_PATH/"
